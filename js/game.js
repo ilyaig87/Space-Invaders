@@ -1,19 +1,24 @@
-const BOARD_SIZE = 14
-const ALIENS_ROW_LENGTH = 8
-const ALIENS_ROW_COUNT = 3
+'use strict'
 
-const SPACE_SHIP = '🚀'
+const BOARD_SIZE = 14
+var gAliensRowLength = 8
+var gAliensRowCount = 3
+
+const HERO = '🚀'
 const ALIEN = '👽'
 const LASER = '💣'
-
+const SUPER_LASER = '^'
+const CANDY = '🍬'
 const SKY = ''
 const GROUND = '⛔'
+var sumOfAliens = gAliensRowLength * gAliensRowCount
 
-var sumOfAliens = ALIENS_ROW_LENGTH * ALIENS_ROW_COUNT
-var gGameIson = false
-
-// Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN}
+var gIsVictory = false
 var gBoard
+var gScore
+
+var gIntervalCandy
+var gIntervalRemoveCandy
 
 var gGame = {
   isOn: false,
@@ -23,17 +28,57 @@ var gGame = {
 // Called when game loads
 function init() {
   gBoard = createBoard()
+  gScore = 0
 
-  // createMat(gBoard, '.board-container')
-  gGame.isOn = true
   renderBoard(gBoard)
-  // createCell(gBoard)
-  // console.log(gBoard)
+  sumOfAliens = gAliensRowLength * gAliensRowCount
+  if (!gGame.isOn) return
+
+  gIntervalCandy = setInterval(addCandy, 10000)
+
+  moveAliens()
+}
+
+function start() {
+  var elbtn1 = document.querySelector('.btn1')
+  var elbtn2 = document.querySelector('.btn2')
+  elbtn1.style.visibility = 'hidden'
+  elbtn2.style.visibility = 'visible'
+
+  gGame.isOn = true
+  init()
+
+  // var elbtn2 = document.querySelector('.btn2')
+  // elbtn2.style.visibility = 'invisible'
+}
+function restart() {
+  var elModal = document.querySelector('.modal')
+  elModal.style.visibility = 'hidden'
+  // var elbtn1 = document.querySelector('.btn1')
+  // var elbtn2 = document.querySelector('.btn2')
+
+  gGame.isOn = true
+  updateHero()
+
+  gAliensTopRowIdx = 0
+  gAliensBottomRowIdx = gAliensRowCount - 1
+  gIsAlienFreeze = false
+  gCanShiftRight = true
+  gCanShiftLeft = false
+  gCanShiftDown = false
+
+  clearInterval(gIntervalAliensRight)
+  clearInterval(gIntervalAliensLeft)
+  clearInterval(gIntervalAliensDown)
+  clearInterval(gIntervalCandy)
+  clearInterval(gIntervalRemoveCandy)
+
+  init()
 }
 
 // Create and returns the board with aliens on top, ground at bottom
 // use the functions: createCell, createHero, createAliens
-// debugger
+
 function createBoard() {
   var board = []
 
@@ -50,7 +95,6 @@ function createBoard() {
   }
   createHero(board)
   createAliens(board)
-  // console.log(board)
   return board
 }
 
@@ -81,30 +125,56 @@ function createCell(gameObject = null) {
     gameObject: gameObject,
   }
 }
-// position such as: {i: 2, j: 7}
-function renderCell(pos, gameObject = null) {
-  // model
-  // console.log(gBoard[pos.i][pos.j])
-  gBoard[pos.i][pos.j].gameObject
 
-  //dom
-  var elCell = getElCell(pos)
-  elCell.innerHTML = gameObject || ''
+function updateScore(score) {
+  var gElScore = document.querySelector('span')
+
+  gScore += score
+  gElScore.innerText = gScore
+  checkIsVictory()
 }
 
-// function renderCell(pos, value) {
-//   console.log('pos:', pos)
-//   console.log('value:', value)
+function checkIsVictory() {
+  console.log(gGame.aliensCount, 'gGame.aliensCount')
+  console.log(sumOfAliens, 'sumOfAliens')
+  return gGame.aliensCount === sumOfAliens
+    ? (gIsVictory = true)
+    : (gIsVictory = false)
+}
 
-//   var elCell = getElCell(pos)
+function gameOver() {
+  var elModal = document.querySelector('.modal')
+  var elBtn2 = document.querySelector('.btn2')
+  elModal.style.visibility = 'visible'
 
-//   elCell.innerText = value
-// }
+  if (gIsVictory) {
+    elModal.innerText = 'You killed them all! - You-Won!'
+    elBtn2.style.visibility = 'visible'
+  } else {
+    elModal.innerText = 'You Lost!'
+  }
+  gGame.isOn = false
 
-// location such as: {i: 2, j: 7}
-// function renderCell(pos, value) {
-// Select the elCell and set the value
-// var elCell = document.querySelector(`.cell-${pos.i}-${pos.j}`)
-// console.log(elCell)
-//   elCell.innerHTML = value
-// }
+  clearInterval(gIntervalAliensRight)
+  clearInterval(gIntervalAliensLeft)
+  clearInterval(gIntervalAliensDown)
+  clearInterval(gIntervalCandy)
+  clearInterval(gIntervalRemoveCandy)
+}
+
+function addCandy() {
+  var cell = getEmptyCell(gBoard)
+
+  updateCell({ i: cell.i, j: cell.j }, CANDY)
+  gIntervalRemoveCandy = setTimeout(removeCandy, 5000, cell.i, cell.j)
+}
+
+function removeCandy(i, j) {
+  updateCell({ i, j }, '')
+}
+
+function setLevel(rowLength, rowCount, speed) {
+  gAliensRowLength = rowLength
+  gAliensRowCount = rowCount
+  ALIEN_SPEED = speed
+}

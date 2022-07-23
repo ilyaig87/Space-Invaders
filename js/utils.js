@@ -1,5 +1,11 @@
 'use strict'
 
+function updateCell(pos, gameObject = null) {
+  gBoard[pos.i][pos.j].gameObject = gameObject
+  var elCell = getElCell(pos)
+  elCell.innerHTML = gameObject || ''
+}
+
 function getElCell(pos) {
   var elPosition = document.querySelector(`.cell-${pos.i}-${pos.j}`)
   // console.log(elPosition)
@@ -7,75 +13,15 @@ function getElCell(pos) {
   return elPosition
 }
 
-function createMat(ROWS, COLS) {
-  var mat = []
-  for (var i = 0; i < ROWS; i++) {
-    var row = []
-    for (var j = 0; j < COLS; j++) {
-      row.push('')
-    }
-    mat.push(row)
-  }
-  return mat
-}
-function copyMat(mat) {
-  var newMat = []
-  for (var i = 0; i < mat.length; i++) {
-    newMat[i] = []
-    for (var j = 0; j < mat[0].length; j++) {
-      newMat[i][j] = mat[i][j]
+function copyBoard(board) {
+  var newBoard = []
+  for (var i = 0; i < board.length; i++) {
+    newBoard[i] = []
+    for (var j = 0; j < board[0].length; j++) {
+      newBoard[i][j] = board[i][j]
     }
   }
-  return newMat
-}
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1) + min) //The maximum is inclusive and the minimum is inclusive
-}
-
-function shuffle(array) {
-  var j, x
-
-  for (var i = array.length - 1; i > 0; i--) {
-    j = Math.floor(Math.random() * (i + 1))
-    x = array[i]
-    array[i] = array[j]
-    array[j] = x
-  }
-
-  return array
-}
-
-// location such as: {i: 2, j: 7}
-// function renderCell(location, value) {
-//   // Select the elCell and set the value
-//   const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
-//   elCell.innerHTML = value
-// }
-
-function getRandomColor() {
-  var letters = '0123456789ABCDEF'
-  var color = '#'
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)]
-  }
-  return color
-}
-
-function getTime() {
-  return new Date().toString().split(' ')[4]
-}
-
-function startTimer() {
-  var startTime = Date.now()
-
-  gGameInterval = setInterval(() => {
-    var seconds = ((Date.now() - startTime) / 1000).toFixed(3)
-    var elSpan = document.querySelector('.timer')
-    elSpan.innerText = `timer: ${seconds}`
-  }, 59)
+  return newBoard
 }
 
 function getNeighboursAroundCount(cellI, cellJ, mat) {
@@ -93,69 +39,27 @@ function getNeighboursAroundCount(cellI, cellJ, mat) {
   return negAroundCount
 }
 
-function findBestPos(board) {
-  var maxFoodCount = 0
-  var bestPos = null
-  for (var i = 0; i < board.length; i++) {
-    for (var j = 0; j < board[0].length; j++) {
-      if (board[i][j] === FOOD) continue
-      var count = countFoodAround(board, i, j)
-      if (count > maxFoodCount) {
-        maxFoodCount = count
-        bestPos = { i: i, j: j }
-      }
-    }
-  }
-  return bestPos
-}
-
-function getRandEmptyLocation() {
+//Find empty cell, only in the first row
+function getEmptyCell(board) {
   var emptyCells = []
-  for (var i = 1; i < SIZE - 1; i++) {
-    for (var j = 1; j < SIZE[i] - 1; j++) {
-      if (gBoard[i][j] === EMPTY) emptyCells.push({ i, j })
+
+  for (var i = 0; i < 1; i++) {
+    for (var j = 0; j < board[i].length; j++) {
+      var cell = board[i][j]
+
+      if (!cell.gameObject) emptyCells.push({ cell, i, j })
     }
   }
+  // console.log('emptyCells:', emptyCells)
+
   var idx = getRandomIntInclusive(0, emptyCells.length - 1)
-  return emptyCells[idx]
+  cell = emptyCells[idx]
+  // console.log('cell:', cell)
+  return cell
 }
 
-function getEmptyCells() {
-  for (var i = 0; i < gBoard.length; i++) {
-    for (var j = 0; j < gBoard[0].length; j++) {}
-  }
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1) + min) //The maximum is inclusive and the minimum is inclusive
 }
-
-// Returns the class name for a specific cell
-// function getClassName(location) {
-//   var cellClass = `cell-${location.i}-${location.j}`
-//   return cellClass
-// }
-
-setTimeout(() => {}, 3000)
-
-function sortByName(name) {
-  name.sort((p1, p2) => p1.name.localeCompare(p2.name))
-
-  return gStudents
-}
-
-function sortByNum(num) {
-  num.sort((p1, p2) => p1.AverageGrade - p2.AverageGrade)
-  return num
-}
-
-function printPrimaryDiagonal(squareMat) {
-  for (var d = 0; d < squareMat.length; d++) {
-    var item = squareMat[d][d]
-    console.log(item)
-  }
-}
-function printSecondaryDiagonal(squareMat) {
-  for (var d = 0; d < squareMat.length; d++) {
-    var item = squareMat[d][squareMat.length - d - 1]
-    console.log(item)
-  }
-}
-
-// setTimeout(() => alert('Times up!'), 3000)

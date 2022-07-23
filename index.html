@@ -5,19 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Space Invaders</title>
-    <h1>Space Invaders</h1>
     <link rel="stylesheet" href="css/style.css" />
   </head>
+
   <body onload="init()" onkeyup="moveHero(event)">
     <div class="img-container">
+      <h1>Space Invaders</h1>
 
-        <button onclick="start()">start the game</button>
-        
-    <h2>Score: <span>0</span></h2>
+      <ul>
+        How to play? Choose a difficulty level. Click Start the game button.
+        Move spaceShip, Press SPACE to shoot! Press 'X' if you want shoot super
+        bombs. Press 'n' if you want to shoot neighbors. Kill them All!!!
+      </ul>
 
-    <div class="modal"><span>You Won</span>You lost</div>
+      <button class="btn1" onclick="start()">start the game</button>
+      <button class="btn2" onclick="restart()">Restart the game</button>
 
-    <div class="board-container"></div>
+      <div class="level">
+        <h2>Choose your level</h2>
+        <button class="setLevel" onclick="setLevel(8,3,1000)">Easy</button>
+        <button class="setLevel" onclick="setLevel(9,3,750)">Normal</button>
+        <button class="setLevel" onclick="setLevel(10,3,100)">Hard</button>
+      </div>
+      <h3>Score: <span></span></h3>
+
+      <h4>Super Atacks left:3</h4>
+      <button class="btn3" onclick="freeze()">Freeze aliens</button>
+      <div class="modal"><span></span></div>
+
+      <div class="board-container"></div>
+    </div>
 
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>
